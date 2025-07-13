@@ -41,6 +41,12 @@ export const PublicationProvider = ({ children }) => {
     setPublications((prev) => prev.filter((pub) => pub.id !== id));
   };
 
+  const getPublication = async (id) => {
+    const publication = await publicationService.getPublicationById(id);
+    return publication;
+  };
+
+
   return (
     <PublicationContext.Provider
       value={{
@@ -48,6 +54,7 @@ export const PublicationProvider = ({ children }) => {
         addPublication,
         editPublication,
         deletePublication,
+        getPublication,
         loading,
         error,
       }}
