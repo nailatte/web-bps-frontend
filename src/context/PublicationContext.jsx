@@ -3,7 +3,7 @@ import { publicationService } from '../services/publicationService';
 
 export const PublicationContext = createContext(null);
 
-
+// Dummy lokal (statis)
 const initialPublications = [
     {
         id: 1,
@@ -43,55 +43,63 @@ const initialPublications = [
 ];
 
 export const PublicationProvider = ({ children }) => {
-    const [publications, setPublications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [publications, setPublications] = useState([...initialPublications]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    // Ambil semua publikasi dari backend saat load pertama
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await publicationService.getPublications();
-                setPublications(data);
-            } catch (err) {
-                console.error(err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+  // Fetch data dari backend dan tambahkan ke dummy
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const backendData = await publicationService.getPublications();
 
-    const addPublication = async (newPub) => {
-        const savedPub = await publicationService.addPublication(newPub);
-        setPublications(prev => [savedPub, ...prev]);
-    };
-
-    const editPublication = async (updatedPub) => {
-        const saved = await publicationService.updatePublication(updatedPub.id, updatedPub);
-        setPublications(prev =>
-            prev.map(pub => pub.id === saved.id ? saved : pub)
+        // Cek apakah data backend sudah ada di dummy (hindari duplikat)
+        const nonDuplicateData = backendData.filter(
+          (backendItem) =>
+            !initialPublications.some((dummyItem) => dummyItem.title === backendItem.title)
         );
+
+        setPublications((prev) => [...prev, ...nonDuplicateData]);
+      } catch (err) {
+        console.error('Gagal ambil dari backend:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const deletePublication = async (id) => {
-        await publicationService.deletePublication(id);
-        setPublications(prev => prev.filter(pub => pub.id !== id));
-    };
+    fetchData();
+  }, []);
 
-    return (
-        <PublicationContext.Provider
-            value={{
-                publications,
-                addPublication,
-                editPublication,
-                deletePublication,
-                loading,
-                error,
-            }}
-        >
-            {children}
-        </PublicationContext.Provider>
+  const addPublication = async (newPub) => {
+    const saved = await publicationService.addPublication(newPub);
+    setPublications((prev) => [saved, ...prev]);
+  };
+
+  const editPublication = async (updatedPub) => {
+    const saved = await publicationService.updatePublication(updatedPub.id, updatedPub);
+    setPublications((prev) =>
+      prev.map((pub) => (pub.id === saved.id ? saved : pub))
     );
+  };
+
+  const deletePublication = async (id) => {
+    await publicationService.deletePublication(id);
+    setPublications((prev) => prev.filter((pub) => pub.id !== id));
+  };
+
+  return (
+    <PublicationContext.Provider
+      value={{
+        publications,
+        addPublication,
+        editPublication,
+        deletePublication,
+        loading,
+        error,
+      }}
+    >
+      {children}
+    </PublicationContext.Provider>
+  );
 };
