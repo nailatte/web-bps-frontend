@@ -16,6 +16,10 @@ export default function PublicationListPage() {
     }
   };
 
+  const handleViewDetail = (id) => {
+    navigate(`/publications/detail/${id}`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <header className="mb-8 text-center md:text-left">
@@ -65,6 +69,12 @@ export default function PublicationListPage() {
                       src="https://icons.veryicon.com/png/o/construction-tools/coca-design/delete-189.png"
                       alt="Hapus"
                       onClick={() => handleDelete(pub.id)}
+                      className="h-8 w-8 cursor-pointer transition duration-300 transform hover:scale-110"
+                    />
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/709/709496.png"
+                      alt="Detail"
+                      onClick={() => handleViewDetail(pub.id)}
                       className="h-8 w-8 cursor-pointer transition duration-300 transform hover:scale-110"
                     />
                   </div>
