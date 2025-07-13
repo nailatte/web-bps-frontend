@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePublications } from '../hooks/usePublications';
+import { uploadImageToCloudinary } from '../services/publicationService';
 
 export default function EditPublicationPage() {
   const { id } = useParams();
@@ -21,7 +22,7 @@ export default function EditPublicationPage() {
     }
   }, [selectedPublication]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!title || !releaseDate) {
@@ -29,18 +30,35 @@ export default function EditPublicationPage() {
       return;
     }
 
+    let finalCoverUrl = coverPreview;
+
+    if (coverFile) {
+      try {
+        finalCoverUrl = await uploadImageToCloudinary(coverFile);
+      } catch (err) {
+        alert('Gagal upload gambar: ' + err.message);
+        return;
+      }
+    }
+
     const updatedPublication = {
       ...selectedPublication,
       title,
       releaseDate,
-      coverUrl: coverFile ? URL.createObjectURL(coverFile) : coverPreview,
+      coverUrl: finalCoverUrl,
     };
 
-    editPublication(updatedPublication);
-    navigate('/publications');
+    try {
+      await editPublication(updatedPublication);
+      navigate('/publications');
+    } catch (err) {
+      alert('Gagal menyimpan perubahan: ' + err.message);
+    }
   };
 
-  if (!selectedPublication) return <p className="text-center mt-12">Publikasi tidak ditemukan.</p>;
+  if (!selectedPublication) {
+    return <p className="text-center mt-12">Publikasi tidak ditemukan.</p>;
+  }
 
   return (
     <div className="max-w-4xl mx-auto bg-[#f2f6fc] p-8 rounded-xl shadow-lg">
