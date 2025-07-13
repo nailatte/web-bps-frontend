@@ -1,5 +1,9 @@
 import React, { createContext, useState, useEffect } from 'react';
-const PublicationContext = createContext(null);
+import { publicationService } from '../services/publicationService';
+
+export const PublicationContext = createContext(null);
+
+
 const initialPublications = [
     {
         id: 1,
@@ -37,35 +41,57 @@ const initialPublications = [
         coverUrl: 'https://jabar.bps.go.id/_next/image?url=https%3A%2F%2Fweb-api.bps.go.id%2Fcover.php%3Ff%3D%2FNdGIm0P4348qPST04Jw62g5dHpIWExHT3REeFFaZ0FSaDhwajFnU1E0V01FZnpXRTFzUlo4T3lsdTZEbXAva2FENmY0RUg5bVhZaW9GL0xOTkNySkdaWW5hcy9uN0w0ZG10eWhZWkpjUHRJTE1YbXB3SC8rdzZwRWFBSDBYTUhTeCt2WE80b2d0Z0ZOeUdC&w=3840&q=75',
     },
 ];
-const PublicationProvider = ({ children }) => {
-        const [publications, setPublications] = useState(() => {
-            const savedPublications = localStorage.getItem('publications');
-            return savedPublications ? JSON.parse(savedPublications) : initialPublications;
-    });
-    // Simpan ke localStorage setiap kali publications berubah
+
+export const PublicationProvider = ({ children }) => {
+    const [publications, setPublications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Ambil semua publikasi dari backend saat load pertama
     useEffect(() => {
-        localStorage.setItem('publications', JSON.stringify(publications));
-    }, [publications]);
-    
-    const addPublication = (newPub) => {
-        setPublications(prev => [newPub, ...prev]);
+        const fetchData = async () => {
+            try {
+                const data = await publicationService.getPublications();
+                setPublications(data);
+            } catch (err) {
+                console.error(err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const addPublication = async (newPub) => {
+        const savedPub = await publicationService.addPublication(newPub);
+        setPublications(prev => [savedPub, ...prev]);
     };
-    const editPublication = (updatedPub) => {
-        setPublications(prev => prev.map(pub => pub.id === updatedPub.id ?
-        updatedPub : pub));
+
+    const editPublication = async (updatedPub) => {
+        const saved = await publicationService.updatePublication(updatedPub.id, updatedPub);
+        setPublications(prev =>
+            prev.map(pub => pub.id === saved.id ? saved : pub)
+        );
     };
-    const deletePublication = (id) => {
+
+    const deletePublication = async (id) => {
+        await publicationService.deletePublication(id);
         setPublications(prev => prev.filter(pub => pub.id !== id));
     };
+
     return (
-        <PublicationContext.Provider value={{
-            publications,
-            addPublication,
-            editPublication,
-            deletePublication
-        }}>
+        <PublicationContext.Provider
+            value={{
+                publications,
+                addPublication,
+                editPublication,
+                deletePublication,
+                loading,
+                error,
+            }}
+        >
             {children}
         </PublicationContext.Provider>
     );
 };
-export { PublicationContext, PublicationProvider };
