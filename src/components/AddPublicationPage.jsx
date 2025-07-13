@@ -100,9 +100,9 @@ export default function AddPublicationPage() {
                 <div className="flex justify-end">
                     <button
                         type="submit"
-                        className="bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 shadow-sm"
                     >
-                        Tambah
+                        Tambah Publikasi
                     </button>
                 </div>
             </form>
