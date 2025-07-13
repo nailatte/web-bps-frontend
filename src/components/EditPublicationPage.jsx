@@ -11,6 +11,7 @@ export default function EditPublicationPage() {
   const selectedPublication = publications.find(pub => pub.id === parseInt(id));
   const [title, setTitle] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
+  const [description, setDescription] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState('');
 
@@ -18,6 +19,7 @@ export default function EditPublicationPage() {
     if (selectedPublication) {
       setTitle(selectedPublication.title);
       setReleaseDate(selectedPublication.releaseDate);
+      setDescription(selectedPublication.description || '');
       setCoverPreview(selectedPublication.coverUrl);
     }
   }, [selectedPublication]);
@@ -45,6 +47,7 @@ export default function EditPublicationPage() {
       ...selectedPublication,
       title,
       releaseDate,
+      description,
       coverUrl: finalCoverUrl,
     };
 
@@ -83,6 +86,18 @@ export default function EditPublicationPage() {
             value={releaseDate}
             onChange={e => setReleaseDate(e.target.value)}
             className="col-span-3 px-3 py-2 border border-gray-300 rounded-md w-full"
+          />
+        </div>
+
+        <div className="grid grid-cols-4 items-start gap-4">
+          <label htmlFor="description" className="text-sm font-medium text-gray-700">Deskripsi</label>
+          <textarea
+            id="description"
+            rows="5"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className="col-span-3 px-3 py-2 border border-gray-300 rounded-md w-full resize-none"
+            placeholder="Tulis deskripsi publikasi di sini..."
           />
         </div>
 
