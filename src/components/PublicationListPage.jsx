@@ -17,7 +17,7 @@ export default function PublicationListPage() {
   };
 
   const handleViewDetail = (id) => {
-    navigate(`/publications/${publication.id}`)
+    navigate(`/publications/detail/${id}`);
   };
 
   return (
