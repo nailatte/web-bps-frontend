@@ -11,12 +11,13 @@ export const publicationService = {
     },
 
     async getPublications () {
-        try {
-            const response = await apiClient.get('/publikasi');
-            return response.data;
-        } catch (error) {
-            throw new Error('Gagal mengambil data: ' + error.response?.data?.message || 'Terjadi kesalahan');
-        }
+    try {
+        const response = await apiClient.get('/publikasi');
+        console.log("📦 Data dari backend:", response.data);
+        return response.data.data; // ⬅️ ambil array di dalam `data`
+    } catch (error) {
+        throw new Error('Gagal mengambil data: ' + (error.response?.data?.message || 'Terjadi kesalahan'));
+    }
     },
 
     //melihat detail publikasi
