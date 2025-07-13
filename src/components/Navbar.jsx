@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { id: "publications", label: "Daftar Publikasi", path: "/publications" },
@@ -20,10 +22,17 @@ function BpsLogo() {
 export default function Navbar() {
   const location = useLocation();
 
-  const handleLogout = async () => {
-    // Tambahkan logika logout sesuai kebutuhan
-    window.location.href = "/login"; // redirect manual (atau gunakan navigate)
-  };
+  const { logoutAction } = useAuth();
+const navigate = useNavigate();
+
+const handleLogout = async () => {
+  try {
+    await logoutAction(); // Panggil logout dari context
+    navigate("/login");   // Redirect ke halaman login
+  } catch (error) {
+    alert("Gagal logout: " + error.message);
+  }
+};
 
   if (location.pathname === "/login") return null;
 
